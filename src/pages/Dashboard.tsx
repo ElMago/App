@@ -1,5 +1,5 @@
 import { useTruckerContext } from '../context/TruckerContext';
-import { Truck, Navigation, Fuel, Coffee, MapPin } from 'lucide-react';
+import { Navigation, Coffee, MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function Dashboard() {
@@ -9,10 +9,20 @@ export default function Dashboard() {
   const currentTrip = data.trips.find(t => t.id === data.currentTripId);
   const currentActivity = currentTrip?.activities.find(a => !a.endTime);
 
-  const todayStr = new Date().toLocaleDateString();
-  const todaysFuel = data.fuelLogs.filter(log => new Date(log.date).toLocaleDateString() === todayStr);
-  const totalLitersToday = todaysFuel.reduce((acc, log) => acc + log.liters, 0);
-  const totalCostToday = todaysFuel.reduce((acc, log) => acc + log.cost, 0);
+  const currentMonthStr = new Date().toISOString().slice(0, 7); // YYYY-MM
+
+  // Calculate Monthly Financials
+  const monthlyTrips = data.trips.filter(t => t.status === 'completado' && t.endDate?.startsWith(currentMonthStr));
+  const totalRevenue = monthlyTrips.reduce((acc, trip) => acc + (trip.load?.price || 0), 0);
+
+  const monthlyFuelLogs = data.fuelLogs.filter(log => log.date.startsWith(currentMonthStr));
+  const totalFuelCost = monthlyFuelLogs.reduce((acc, log) => acc + log.cost, 0);
+
+  const monthlyExpenses = (data.expenses || []).filter(exp => exp.date.startsWith(currentMonthStr));
+  const totalOtherExpenses = monthlyExpenses.reduce((acc, exp) => acc + exp.amount, 0);
+
+  const totalExpenses = totalFuelCost + totalOtherExpenses;
+  const netProfit = totalRevenue - totalExpenses;
 
   const handleQuickActivity = (type: 'descanso' | 'paseo') => {
     if (!currentTrip) {
@@ -37,29 +47,26 @@ export default function Dashboard() {
   return (
     <div className="space-y-6 max-w-lg mx-auto">
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">Resumen Diario</h2>
-        <p className="text-gray-500 mb-6">{new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">Resumen Mensual</h2>
+        <p className="text-gray-500 mb-6 capitalize">{new Date().toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}</p>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-blue-50 p-4 rounded-lg flex items-center space-x-3">
-            <div className="bg-blue-100 p-2 rounded-full text-blue-600">
-              <Fuel size={24} />
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Combustible</p>
-              <p className="font-bold text-gray-900">{totalLitersToday} L</p>
-            </div>
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="bg-green-50 p-4 rounded-lg">
+            <p className="text-sm text-gray-500 mb-1">Ingresos</p>
+            <p className="text-xl font-bold text-green-700">{totalRevenue.toFixed(2)} €</p>
           </div>
 
-          <div className="bg-green-50 p-4 rounded-lg flex items-center space-x-3">
-            <div className="bg-green-100 p-2 rounded-full text-green-600">
-              <Truck size={24} />
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Gasto</p>
-              <p className="font-bold text-gray-900">{totalCostToday.toFixed(2)} €</p>
-            </div>
+          <div className="bg-red-50 p-4 rounded-lg">
+            <p className="text-sm text-gray-500 mb-1">Gastos Totales</p>
+            <p className="text-xl font-bold text-red-700">{totalExpenses.toFixed(2)} €</p>
           </div>
+        </div>
+
+        <div className={`p-4 rounded-lg flex justify-between items-center ${netProfit >= 0 ? 'bg-blue-50 border border-blue-200' : 'bg-orange-50 border border-orange-200'}`}>
+          <span className="font-semibold text-gray-700">Beneficio Neto:</span>
+          <span className={`text-2xl font-bold ${netProfit >= 0 ? 'text-blue-700' : 'text-orange-700'}`}>
+            {netProfit.toFixed(2)} €
+          </span>
         </div>
       </div>
 

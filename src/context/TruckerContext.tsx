@@ -17,6 +17,15 @@ export interface Activity {
   notes?: string;
 }
 
+export interface LoadInfo {
+  pallets?: number;
+  weight?: number;
+  loadLocation?: LocationInfo;
+  unloadLocation?: LocationInfo;
+  price?: number;
+  notes?: string;
+}
+
 export interface Trip {
   id: string;
   startDate: string;
@@ -27,6 +36,7 @@ export interface Trip {
   startKm: number;
   endKm?: number;
   activities: Activity[];
+  load?: LoadInfo;
 }
 
 export interface FuelLog {
@@ -38,26 +48,48 @@ export interface FuelLog {
   location: LocationInfo;
 }
 
+export type ExpenseCategory = 'mantenimiento' | 'peaje' | 'dieta' | 'otros';
+
+export interface Expense {
+  id: string;
+  date: string;
+  amount: number;
+  category: ExpenseCategory;
+  description: string;
+}
+
+export interface VehicleInfo {
+  truckPlate: string;
+  trailerPlate: string;
+}
+
 interface TruckerData {
   trips: Trip[];
   fuelLogs: FuelLog[];
+  expenses: Expense[];
+  vehicle: VehicleInfo;
   currentTripId: string | null;
 }
 
 interface TruckerContextType {
   data: TruckerData;
-  startTrip: (location: LocationInfo, startKm: number) => void;
+  updateVehicle: (truckPlate: string, trailerPlate: string) => void;
+  startTrip: (location: LocationInfo, startKm: number, load?: LoadInfo) => void;
   endTrip: (location: LocationInfo, endKm: number) => void;
   addActivity: (activity: Omit<Activity, 'id'>) => void;
   endCurrentActivity: (endTime: string) => void;
   addFuelLog: (log: Omit<FuelLog, 'id'>) => void;
   deleteFuelLog: (id: string) => void;
+  addExpense: (expense: Omit<Expense, 'id'>) => void;
+  deleteExpense: (id: string) => void;
   deleteTrip: (id: string) => void;
 }
 
 const defaultData: TruckerData = {
   trips: [],
   fuelLogs: [],
+  expenses: [],
+  vehicle: { truckPlate: '', trailerPlate: '' },
   currentTripId: null,
 };
 
@@ -75,14 +107,19 @@ export const TruckerProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const generateId = () => Math.random().toString(36).substr(2, 9);
 
-  const startTrip = (location: LocationInfo, startKm: number) => {
+  const updateVehicle = (truckPlate: string, trailerPlate: string) => {
+    setData(prev => ({ ...prev, vehicle: { truckPlate, trailerPlate } }));
+  };
+
+  const startTrip = (location: LocationInfo, startKm: number, load?: LoadInfo) => {
     const newTrip: Trip = {
       id: generateId(),
       startDate: new Date().toISOString(),
       startLocation: location,
       status: 'en_curso',
       startKm,
-      activities: []
+      activities: [],
+      load
     };
     setData(prev => ({
       ...prev,
@@ -150,6 +187,20 @@ export const TruckerProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }));
   };
 
+  const addExpense = (expense: Omit<Expense, 'id'>) => {
+    setData(prev => ({
+      ...prev,
+      expenses: [{ ...expense, id: generateId() }, ...(prev.expenses || [])].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    }));
+  };
+
+  const deleteExpense = (id: string) => {
+    setData(prev => ({
+      ...prev,
+      expenses: (prev.expenses || []).filter(exp => exp.id !== id)
+    }));
+  };
+
   const deleteTrip = (id: string) => {
     setData(prev => ({
       ...prev,
@@ -161,12 +212,15 @@ export const TruckerProvider: React.FC<{ children: React.ReactNode }> = ({ child
   return (
     <TruckerContext.Provider value={{
       data,
+      updateVehicle,
       startTrip,
       endTrip,
       addActivity,
       endCurrentActivity,
       addFuelLog,
       deleteFuelLog,
+      addExpense,
+      deleteExpense,
       deleteTrip
     }}>
       {children}
