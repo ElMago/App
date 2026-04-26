@@ -13,6 +13,7 @@ export default function Dashboard() {
   const todaysFuel = data.fuelLogs.filter(log => new Date(log.date).toLocaleDateString() === todayStr);
   const totalLitersToday = todaysFuel.reduce((acc, log) => acc + log.liters, 0);
   const totalCostToday = todaysFuel.reduce((acc, log) => acc + log.cost, 0);
+  const currency = data.profile?.currency || '€';
 
   const handleQuickActivity = (type: 'descanso' | 'paseo') => {
     if (!currentTrip) {
@@ -57,7 +58,7 @@ export default function Dashboard() {
             </div>
             <div>
               <p className="text-sm text-gray-500">Gasto</p>
-              <p className="font-bold text-gray-900">{totalCostToday.toFixed(2)} €</p>
+              <p className="font-bold text-gray-900">{totalCostToday.toFixed(2)} {currency}</p>
             </div>
           </div>
         </div>

@@ -6,10 +6,11 @@ export default function Profile() {
   const { data, updateProfile } = useTruckerContext();
   const [truckPlate, setTruckPlate] = useState(data.profile?.truckPlate || '');
   const [trailerPlate, setTrailerPlate] = useState(data.profile?.trailerPlate || '');
+  const [currency, setCurrency] = useState(data.profile?.currency || '€');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    updateProfile({ truckPlate, trailerPlate });
+    updateProfile({ truckPlate, trailerPlate, currency });
     alert('Perfil guardado exitosamente.');
   };
 
@@ -46,6 +47,22 @@ export default function Profile() {
               placeholder="Ej: R 1234 AB"
               className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Moneda
+            </label>
+            <select
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            >
+              <option value="€">Euros (€)</option>
+              <option value="$">Dólares ($)</option>
+              <option value="£">Libras (£)</option>
+              <option value="CHF">Francos Suizos (CHF)</option>
+            </select>
           </div>
 
           <button

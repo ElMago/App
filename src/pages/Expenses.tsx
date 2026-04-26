@@ -4,6 +4,7 @@ import { Plus, Trash2, Receipt, Calendar, Tag, FileText } from 'lucide-react';
 
 export default function Expenses() {
   const { data, addExpense, deleteExpense } = useTruckerContext();
+  const currency = data.profile?.currency || '€';
 
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState<'mantenimiento' | 'peaje' | 'dietas' | 'otros'>('mantenimiento');
@@ -43,7 +44,7 @@ export default function Expenses() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-gray-600 mb-1">Importe (€)</label>
+              <label className="block text-sm text-gray-600 mb-1">Importe ({currency})</label>
               <input type="number" step="0.01" value={amount} onChange={e => setAmount(e.target.value)} className="w-full p-2 border rounded-lg bg-gray-50" required placeholder="Ej: 45.50" />
             </div>
             <div>
@@ -88,7 +89,7 @@ export default function Expenses() {
                   </p>
                 </div>
                 <div className="flex items-center flex-col justify-between">
-                  <span className="font-bold text-lg text-gray-900 mb-2">{exp.amount}€</span>
+                  <span className="font-bold text-lg text-gray-900 mb-2">{exp.amount}{currency}</span>
                   <button onClick={() => deleteExpense(exp.id)} className="text-gray-400 hover:text-red-600 p-1">
                     <Trash2 size={16} />
                   </button>

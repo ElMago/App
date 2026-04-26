@@ -52,6 +52,16 @@ export interface Expense {
 export interface Profile {
   truckPlate: string;
   trailerPlate: string;
+  currency: string;
+}
+
+export interface PointOfInterest {
+  id: string;
+  name: string;
+  rating: 'good' | 'bad';
+  notes: string;
+  lat: number;
+  lng: number;
 }
 
 interface TruckerData {
@@ -59,6 +69,7 @@ interface TruckerData {
   trips: Trip[];
   fuelLogs: FuelLog[];
   expenses: Expense[];
+  pois: PointOfInterest[];
   currentTripId: string | null;
 }
 
@@ -74,16 +85,20 @@ interface TruckerContextType {
   deleteTrip: (id: string) => void;
   addExpense: (expense: Omit<Expense, 'id'>) => void;
   deleteExpense: (id: string) => void;
+  addPOI: (poi: Omit<PointOfInterest, 'id'>) => void;
+  deletePOI: (id: string) => void;
 }
 
 const defaultData: TruckerData = {
   profile: {
     truckPlate: '',
     trailerPlate: '',
+    currency: '€',
   },
   trips: [],
   fuelLogs: [],
   expenses: [],
+  pois: [],
   currentTripId: null,
 };
 
@@ -206,6 +221,20 @@ export const TruckerProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }));
   };
 
+  const addPOI = (poi: Omit<PointOfInterest, 'id'>) => {
+    setData(prev => ({
+      ...prev,
+      pois: [{ ...poi, id: generateId() }, ...(prev.pois || [])]
+    }));
+  };
+
+  const deletePOI = (id: string) => {
+    setData(prev => ({
+      ...prev,
+      pois: (prev.pois || []).filter(p => p.id !== id)
+    }));
+  };
+
   return (
     <TruckerContext.Provider value={{
       data,
@@ -218,7 +247,9 @@ export const TruckerProvider: React.FC<{ children: React.ReactNode }> = ({ child
       deleteFuelLog,
       deleteTrip,
       addExpense,
-      deleteExpense
+      deleteExpense,
+      addPOI,
+      deletePOI
     }}>
       {children}
     </TruckerContext.Provider>

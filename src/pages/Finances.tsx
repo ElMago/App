@@ -29,6 +29,7 @@ export default function Finances() {
   const totalExpenses = totalFuelCost + totalOtherExpenses;
 
   const profit = totalRevenue - totalExpenses;
+  const currency = data.profile?.currency || '€';
 
   // Expense breakdown
   const expensesByCategory = currentExpenses.reduce((acc, exp) => {
@@ -73,7 +74,7 @@ export default function Finances() {
               <TrendingUp className="mr-2" size={20}/>
               <span className="font-semibold">Ingresos (Viajes)</span>
             </div>
-            <span className="font-bold text-lg text-green-800">{totalRevenue.toFixed(2)} €</span>
+            <span className="font-bold text-lg text-green-800">{totalRevenue.toFixed(2)} {currency}</span>
           </div>
 
           <div className="flex justify-between items-center p-4 bg-red-50 rounded-lg border border-red-100">
@@ -81,7 +82,7 @@ export default function Finances() {
               <TrendingDown className="mr-2" size={20}/>
               <span className="font-semibold">Gastos Totales</span>
             </div>
-            <span className="font-bold text-lg text-red-800">{totalExpenses.toFixed(2)} €</span>
+            <span className="font-bold text-lg text-red-800">{totalExpenses.toFixed(2)} {currency}</span>
           </div>
 
           <div className={`flex justify-between items-center p-5 rounded-lg border ${profit >= 0 ? 'bg-blue-50 border-blue-200' : 'bg-orange-50 border-orange-200'}`}>
@@ -90,7 +91,7 @@ export default function Finances() {
               <span className="font-bold text-lg">Beneficio Neto</span>
             </div>
             <span className={`font-black text-2xl ${profit >= 0 ? 'text-blue-700' : 'text-orange-700'}`}>
-              {profit.toFixed(2)} €
+              {profit.toFixed(2)} {currency}
             </span>
           </div>
         </div>
@@ -104,13 +105,13 @@ export default function Finances() {
             {totalFuelCost > 0 && (
               <div className="flex justify-between items-center text-sm border-b pb-2">
                 <span className="text-gray-600">Gasoil</span>
-                <span className="font-medium">{totalFuelCost.toFixed(2)} €</span>
+                <span className="font-medium">{totalFuelCost.toFixed(2)} {currency}</span>
               </div>
             )}
             {Object.entries(expensesByCategory).map(([cat, amount]) => (
               <div key={cat} className="flex justify-between items-center text-sm border-b pb-2">
                 <span className="text-gray-600 capitalize">{cat}</span>
-                <span className="font-medium">{amount.toFixed(2)} €</span>
+                <span className="font-medium">{amount.toFixed(2)} {currency}</span>
               </div>
             ))}
           </div>

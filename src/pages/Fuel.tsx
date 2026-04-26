@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTruckerContext } from '../context/TruckerContext';
 import { Fuel as FuelIcon, Plus, Trash2, MapPin, Calendar, Euro, Droplets } from 'lucide-react';
+import { COUNTRIES } from '../utils/countries';
 
 export default function Fuel() {
   const { data, addFuelLog, deleteFuelLog } = useTruckerContext();
@@ -57,6 +58,7 @@ export default function Fuel() {
   };
 
   const consumptionStats = calculateConsumption();
+  const currency = data.profile?.currency || '€';
 
   return (
     <div className="max-w-lg mx-auto space-y-6">
@@ -86,7 +88,7 @@ export default function Fuel() {
               <input type="number" step="0.01" value={liters} onChange={e => setLiters(e.target.value)} className="w-full p-2 border rounded-lg bg-gray-50" required placeholder="Ej: 500" />
             </div>
             <div>
-              <label className="block text-sm text-gray-600 mb-1 flex items-center"><Euro size={14} className="mr-1"/> Coste (€)</label>
+              <label className="block text-sm text-gray-600 mb-1 flex items-center"><Euro size={14} className="mr-1"/> Coste ({currency})</label>
               <input type="number" step="0.01" value={cost} onChange={e => setCost(e.target.value)} className="w-full p-2 border rounded-lg bg-gray-50" required placeholder="Ej: 750.50" />
             </div>
           </div>
@@ -99,7 +101,9 @@ export default function Fuel() {
           <div className="grid grid-cols-3 gap-3">
             <div className="col-span-1">
               <label className="block text-sm text-gray-600 mb-1">País</label>
-              <input value={country} onChange={e => setCountry(e.target.value)} className="w-full p-2 border rounded-lg" placeholder="ES" />
+              <select value={country} onChange={e => setCountry(e.target.value)} className="w-full p-2 border rounded-lg bg-white">
+                {COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.code}</option>)}
+              </select>
             </div>
             <div className="col-span-2">
               <label className="block text-sm text-gray-600 mb-1">Pueblo/Ciudad</label>
@@ -137,11 +141,11 @@ export default function Fuel() {
                   </div>
                   <div className="bg-green-50 p-2 rounded text-center">
                     <span className="block text-xs text-green-600">Coste</span>
-                    <span className="font-bold">{log.cost}€</span>
+                    <span className="font-bold">{log.cost}{currency}</span>
                   </div>
                   <div className="bg-gray-50 p-2 rounded text-center">
                     <span className="block text-xs text-gray-600">Precio/L</span>
-                    <span className="font-bold">{(log.cost / log.liters).toFixed(2)}€</span>
+                    <span className="font-bold">{(log.cost / log.liters).toFixed(2)}{currency}</span>
                   </div>
                 </div>
 

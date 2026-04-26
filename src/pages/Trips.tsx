@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useTruckerContext } from '../context/TruckerContext';
 import type { ActivityType } from '../context/TruckerContext';
 import { Play, Square, Plus, Trash2, Clock } from 'lucide-react';
+import { COUNTRIES } from '../utils/countries';
 
 export default function Trips() {
   const { data, startTrip, endTrip, addActivity, endCurrentActivity, deleteTrip } = useTruckerContext();
@@ -46,6 +47,8 @@ export default function Trips() {
     setTown(''); setKm('');
   };
 
+  const currency = data.profile?.currency || '€';
+
   const handleAddActivity = (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentTrip) return alert('Inicia una ruta primero');
@@ -75,7 +78,9 @@ export default function Trips() {
             <div className="bg-gray-50 p-4 rounded-lg space-y-4">
               <h3 className="font-semibold text-gray-700">Origen (Carga)</h3>
               <div className="grid grid-cols-3 gap-2">
-                <input value={country} onChange={e => setCountry(e.target.value)} className="col-span-1 p-2 border rounded-lg" placeholder="País (ES)" />
+                <select value={country} onChange={e => setCountry(e.target.value)} className="col-span-1 p-2 border rounded-lg bg-white">
+                  {COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.code}</option>)}
+                </select>
                 <input value={town} onChange={e => setTown(e.target.value)} className="col-span-2 p-2 border rounded-lg" placeholder="Pueblo/Ciudad" required />
               </div>
               <div>
@@ -87,7 +92,9 @@ export default function Trips() {
             <div className="bg-blue-50 p-4 rounded-lg space-y-4">
               <h3 className="font-semibold text-blue-800">Destino Previsto (Descarga)</h3>
               <div className="grid grid-cols-3 gap-2">
-                <input value={destCountry} onChange={e => setDestCountry(e.target.value)} className="col-span-1 p-2 border rounded-lg" placeholder="País (ES)" />
+                <select value={destCountry} onChange={e => setDestCountry(e.target.value)} className="col-span-1 p-2 border rounded-lg bg-white">
+                  {COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.code}</option>)}
+                </select>
                 <input value={destTown} onChange={e => setDestTown(e.target.value)} className="col-span-2 p-2 border rounded-lg" placeholder="Pueblo/Ciudad" required />
               </div>
             </div>
@@ -105,7 +112,7 @@ export default function Trips() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm text-gray-600 mb-1">Precio del Viaje (€)</label>
+                <label className="block text-sm text-gray-600 mb-1">Precio del Viaje ({currency})</label>
                 <input type="number" value={revenue} onChange={e => setRevenue(e.target.value)} className="w-full p-2 border rounded-lg" placeholder="Ej: 1200" />
               </div>
             </div>
@@ -141,7 +148,7 @@ export default function Trips() {
                 <div className="bg-gray-50 p-3 rounded text-sm grid grid-cols-3 gap-2 text-center">
                   {currentTrip.cargoPallets && <div><span className="block text-gray-500 text-xs">Palets</span>{currentTrip.cargoPallets}</div>}
                   {currentTrip.cargoWeight && <div><span className="block text-gray-500 text-xs">Peso</span>{currentTrip.cargoWeight} kg</div>}
-                  {currentTrip.revenue && <div><span className="block text-gray-500 text-xs">Precio</span>{currentTrip.revenue} €</div>}
+                  {currentTrip.revenue && <div><span className="block text-gray-500 text-xs">Precio</span>{currentTrip.revenue} {currency}</div>}
                 </div>
               )}
             </div>
@@ -157,7 +164,9 @@ export default function Trips() {
                   <option value="paseo">Paseo</option>
                 </select>
                 <div className="grid grid-cols-3 gap-2">
-                  <input value={country} onChange={e => setCountry(e.target.value)} className="col-span-1 p-2 border rounded-lg" placeholder="País" />
+                  <select value={country} onChange={e => setCountry(e.target.value)} className="col-span-1 p-2 border rounded-lg bg-white">
+                    {COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.code}</option>)}
+                  </select>
                   <input value={town} onChange={e => setTown(e.target.value)} className="col-span-2 p-2 border rounded-lg" placeholder="Pueblo/Ciudad" required />
                 </div>
                 <input value={notes} onChange={e => setNotes(e.target.value)} className="w-full p-2 border rounded-lg" placeholder="Notas (opcional)" />
@@ -171,12 +180,14 @@ export default function Trips() {
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-red-500">
             <h2 className="text-lg font-bold mb-4 flex items-center text-red-700"><Square className="mr-2" size={20}/> Finalizar Ruta</h2>
             <form onSubmit={handleEndTrip} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm text-gray-600 mb-1">País Final</label>
-                  <input value={country} onChange={e => setCountry(e.target.value)} className="w-full p-2 border rounded-lg" placeholder="Ej: ES, FR" />
+              <div className="grid grid-cols-3 gap-2">
+                <div className="col-span-1">
+                  <label className="block text-sm text-gray-600 mb-1">País</label>
+                  <select value={country} onChange={e => setCountry(e.target.value)} className="w-full p-2 border rounded-lg bg-white">
+                    {COUNTRIES.map(c => <option key={c.code} value={c.code}>{c.code}</option>)}
+                  </select>
                 </div>
-                <div>
+                <div className="col-span-2">
                   <label className="block text-sm text-gray-600 mb-1">Pueblo Final</label>
                   <input value={town} onChange={e => setTown(e.target.value)} className="w-full p-2 border rounded-lg" required />
                 </div>
@@ -206,7 +217,7 @@ export default function Trips() {
                     <span>{new Date(trip.startDate).toLocaleDateString()}</span>
                     <span>Recorrido: {(trip.endKm || 0) - trip.startKm} km</span>
                     {trip.cargoWeight && <span>Peso: {trip.cargoWeight} kg</span>}
-                    {trip.revenue && <span className="font-medium text-green-600">{trip.revenue} €</span>}
+                    {trip.revenue && <span className="font-medium text-green-600">{trip.revenue} {currency}</span>}
                   </div>
                 </div>
                 <button onClick={() => deleteTrip(trip.id)} className="text-red-400 hover:text-red-600 p-2">
