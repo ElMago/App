@@ -54,6 +54,7 @@ export interface Profile {
   trailerPlate: string;
   currency: string;
   role: 'chofer' | 'jefe';
+  isPremium: boolean;
 }
 
 export interface Document {
@@ -107,6 +108,7 @@ const defaultData: TruckerData = {
     trailerPlate: '',
     currency: '€',
     role: 'chofer',
+    isPremium: false,
   },
   trips: [],
   fuelLogs: [],

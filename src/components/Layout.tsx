@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, Truck, Fuel, Map, User, Receipt, BarChart3, FileText } from 'lucide-react';
+import { Home, Truck, Fuel, Map, User, Receipt, BarChart3, FileText, Star } from 'lucide-react';
 import { useTruckerContext } from '../context/TruckerContext';
 
 interface LayoutProps {
@@ -57,6 +57,11 @@ export default function Layout({ children }: LayoutProps) {
             </NavLink>
           </>
         )}
+
+        <NavLink to="/subscription" className={({ isActive }) => `flex flex-col items-center p-2 rounded-lg shrink-0 ${isActive ? 'text-blue-600' : 'text-gray-500 hover:text-gray-900'}`}>
+          <Star size={24} className={data.profile.isPremium ? "text-yellow-500" : ""} />
+          <span className="mt-1">Pro</span>
+        </NavLink>
 
         <NavLink to="/profile" className={({ isActive }) => `flex flex-col items-center p-2 rounded-lg shrink-0 ${isActive ? 'text-blue-600' : 'text-gray-500 hover:text-gray-900'}`}>
           <User size={24} />

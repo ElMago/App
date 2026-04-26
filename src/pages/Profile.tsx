@@ -11,7 +11,7 @@ export default function Profile() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    updateProfile({ truckPlate, trailerPlate, currency, role });
+    updateProfile({ truckPlate, trailerPlate, currency, role, isPremium: data.profile?.isPremium || false });
     alert('Perfil guardado exitosamente.');
   };
 

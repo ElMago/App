@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTruckerContext } from '../context/TruckerContext';
-import { Camera, Upload, Trash2, Calendar } from 'lucide-react';
+import { Camera, Upload, Trash2, Calendar, Lock, Star } from 'lucide-react';
 
 export default function Documents() {
   const { data, addDocument, deleteDocument } = useTruckerContext();
@@ -12,6 +13,28 @@ export default function Documents() {
   const [selectedDoc, setSelectedDoc] = useState<string | null>(null);
 
   const role = data.profile?.role || 'chofer';
+  const navigate = useNavigate();
+
+  if (!data.profile.isPremium) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 px-4 text-center space-y-6">
+        <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+          <Lock className="w-12 h-12 text-gray-400" />
+        </div>
+        <h2 className="text-2xl font-bold text-gray-800">Función Exclusiva PRO</h2>
+        <p className="text-gray-600 max-w-md">
+          El escáner y almacenamiento de documentos (CMR, Albaranes, Facturas) está reservado para usuarios PRO.
+        </p>
+        <button
+          onClick={() => navigate('/subscription')}
+          className="mt-6 flex items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-colors"
+        >
+          <Star className="w-5 h-5 mr-2" />
+          Ver Planes Premium
+        </button>
+      </div>
+    );
+  }
 
   const handleImageCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTruckerContext } from '../context/TruckerContext';
-import { Plus, Trash2, Receipt, Calendar, Tag, FileText } from 'lucide-react';
+import { Plus, Trash2, Receipt, Calendar, Tag, FileText, Lock, Star } from 'lucide-react';
 
 export default function Expenses() {
   const { data, addExpense, deleteExpense } = useTruckerContext();
@@ -33,6 +34,29 @@ export default function Expenses() {
       default: return 'bg-gray-100 text-gray-700 border-gray-200';
     }
   };
+
+  const navigate = useNavigate();
+
+  if (!data.profile.isPremium) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 px-4 text-center space-y-6">
+        <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+          <Lock className="w-12 h-12 text-gray-400" />
+        </div>
+        <h2 className="text-2xl font-bold text-gray-800">Función Exclusiva PRO</h2>
+        <p className="text-gray-600 max-w-md">
+          El registro de gastos, mantenimientos, peajes y dietas está reservado para usuarios PRO.
+        </p>
+        <button
+          onClick={() => navigate('/subscription')}
+          className="mt-6 flex items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-colors"
+        >
+          <Star className="w-5 h-5 mr-2" />
+          Ver Planes Premium
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-lg mx-auto space-y-6">

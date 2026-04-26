@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTruckerContext } from '../context/TruckerContext';
-import { PieChart, TrendingUp, TrendingDown, Calendar as CalendarIcon, DollarSign } from 'lucide-react';
+import { PieChart, TrendingUp, TrendingDown, Calendar as CalendarIcon, DollarSign, Lock, Star } from 'lucide-react';
 
 export default function Finances() {
   const { data } = useTruckerContext();
@@ -36,6 +37,29 @@ export default function Finances() {
     acc[exp.category] = (acc[exp.category] || 0) + exp.amount;
     return acc;
   }, {} as Record<string, number>);
+
+  const navigate = useNavigate();
+
+  if (!data.profile.isPremium) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 px-4 text-center space-y-6">
+        <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+          <Lock className="w-12 h-12 text-gray-400" />
+        </div>
+        <h2 className="text-2xl font-bold text-gray-800">Función Exclusiva PRO</h2>
+        <p className="text-gray-600 max-w-md">
+          El análisis de rentabilidad, cálculo de beneficios netos y gráficas financieras están reservados para usuarios PRO.
+        </p>
+        <button
+          onClick={() => navigate('/subscription')}
+          className="mt-6 flex items-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-colors"
+        >
+          <Star className="w-5 h-5 mr-2" />
+          Ver Planes Premium
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-lg mx-auto space-y-6">
