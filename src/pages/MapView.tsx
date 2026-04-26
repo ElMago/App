@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, Polyline } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Navigation, Coffee, Bed, MapPin } from 'lucide-react';
+import { useTruckerContext } from '../context/TruckerContext';
+import axios from 'axios';
 
 // Fix for Leaflet icons in React
 import L from 'leaflet';
@@ -15,6 +17,34 @@ const DefaultIcon = L.icon({
     iconAnchor: [12, 41]
 });
 L.Marker.prototype.options.icon = DefaultIcon;
+
+const StartIcon = L.divIcon({
+  className: 'custom-icon',
+  html: `<div style="background-color: #10B981; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-weight: bold; font-size: 12px;">A</div>`,
+  iconSize: [24, 24],
+  iconAnchor: [12, 12]
+});
+
+const EndIcon = L.divIcon({
+  className: 'custom-icon',
+  html: `<div style="background-color: #EF4444; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-weight: bold; font-size: 12px;">B</div>`,
+  iconSize: [24, 24],
+  iconAnchor: [12, 12]
+});
+
+// Helper for geocoding
+const geocodeTown = async (town: string, country: string): Promise<[number, number] | null> => {
+  try {
+    const res = await axios.get(`https://nominatim.openstreetmap.org/search?city=${town}&country=${country}&format=json&limit=1`);
+    if (res.data && res.data.length > 0) {
+      return [parseFloat(res.data[0].lat), parseFloat(res.data[0].lon)];
+    }
+    return null;
+  } catch (error) {
+    console.error("Geocoding error", error);
+    return null;
+  }
+};
 
 // Mock data for rest areas
 const mockRestAreas = [
@@ -39,8 +69,29 @@ function LocationMarker({ position }: { position: [number, number] | null }) {
 }
 
 export default function MapView() {
+  const { data } = useTruckerContext();
+  const currentTrip = data.trips.find(t => t.id === data.currentTripId);
+
   const [position, setPosition] = useState<[number, number] | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const [tripCoords, setTripCoords] = useState<{start: [number, number] | null, end: [number, number] | null}>({ start: null, end: null });
+
+  useEffect(() => {
+    const fetchTripCoords = async () => {
+      if (currentTrip) {
+        const start = await geocodeTown(currentTrip.startLocation.town, currentTrip.startLocation.country);
+        let end = null;
+        if (currentTrip.endLocation) {
+          end = await geocodeTown(currentTrip.endLocation.town, currentTrip.endLocation.country);
+        }
+        setTripCoords({ start, end });
+      } else {
+        setTripCoords({ start: null, end: null });
+      }
+    };
+    fetchTripCoords();
+  }, [currentTrip]);
 
   const locateUser = () => {
     setLoading(true);
@@ -97,6 +148,26 @@ export default function MapView() {
           />
 
           <LocationMarker position={position} />
+
+          {tripCoords.start && (
+            <Marker position={tripCoords.start} icon={StartIcon}>
+              <Popup>
+                Origen: {currentTrip?.startLocation.town}
+              </Popup>
+            </Marker>
+          )}
+
+          {tripCoords.end && (
+            <Marker position={tripCoords.end} icon={EndIcon}>
+              <Popup>
+                Destino Previsto: {currentTrip?.endLocation?.town}
+              </Popup>
+            </Marker>
+          )}
+
+          {tripCoords.start && tripCoords.end && (
+            <Polyline positions={[tripCoords.start, tripCoords.end]} color="blue" dashArray="5, 10" />
+          )}
 
           {mockRestAreas.map(area => (
             <Marker key={area.id} position={[area.lat, area.lng]}>

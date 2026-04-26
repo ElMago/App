@@ -26,8 +26,54 @@ export default function Fuel() {
     setLiters(''); setCost(''); setKm(''); setTown('');
   };
 
+  // Calculate average consumption based on fuel logs
+  const calculateConsumption = () => {
+    if (data.fuelLogs.length < 2) return null;
+
+    // Sort logs ascending by KM to calculate diffs properly
+    const sortedLogs = [...data.fuelLogs].sort((a, b) => a.km - b.km);
+
+    const firstLog = sortedLogs[0];
+    const lastLog = sortedLogs[sortedLogs.length - 1];
+
+    const totalKm = lastLog.km - firstLog.km;
+
+    // Total liters between the first and last log
+    // We don't include the first log's liters since they were used before the first KM reading
+    let totalLiters = 0;
+    for (let i = 1; i < sortedLogs.length; i++) {
+      totalLiters += sortedLogs[i].liters;
+    }
+
+    if (totalKm <= 0 || totalLiters <= 0) return null;
+
+    const avgLitersPer100Km = (totalLiters / totalKm) * 100;
+
+    return {
+      avg: avgLitersPer100Km.toFixed(2),
+      totalKm,
+      totalLiters
+    };
+  };
+
+  const consumptionStats = calculateConsumption();
+
   return (
     <div className="max-w-lg mx-auto space-y-6">
+      {consumptionStats && (
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
+          <div>
+            <h3 className="text-sm text-gray-500 font-medium">Consumo Medio</h3>
+            <p className="text-3xl font-bold text-blue-600">{consumptionStats.avg} <span className="text-sm font-normal text-gray-500">L/100km</span></p>
+          </div>
+          <div className="text-right text-xs text-gray-400">
+            <p>Basado en:</p>
+            <p>{consumptionStats.totalKm} km</p>
+            <p>{consumptionStats.totalLiters} L</p>
+          </div>
+        </div>
+      )}
+
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
         <h2 className="text-xl font-bold mb-4 flex items-center text-blue-800">
           <FuelIcon className="mr-2 text-blue-600" /> Repostaje
