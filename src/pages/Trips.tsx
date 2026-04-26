@@ -14,11 +14,28 @@ export default function Trips() {
   const [actType, setActType] = useState<ActivityType>('conduccion');
   const [notes, setNotes] = useState('');
 
+  // Nuevos campos para datos de carga
+  const [pallets, setPallets] = useState('');
+  const [weight, setWeight] = useState('');
+  const [price, setPrice] = useState('');
+  const [unloadTown, setUnloadTown] = useState('');
+
   const handleStartTrip = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!town || !km) return alert('Por favor rellena pueblo y KM');
-    startTrip({ country, town }, Number(km));
-    setTown(''); setKm('');
+    if (!town || !km) return alert('Por favor rellena pueblo origen y KM');
+
+    startTrip(
+      { country, town },
+      Number(km),
+      {
+        pallets: pallets ? Number(pallets) : undefined,
+        weight: weight ? Number(weight) : undefined,
+        price: price ? Number(price) : undefined,
+        loadLocation: { country, town },
+        unloadLocation: unloadTown ? { country, town: unloadTown } : undefined
+      }
+    );
+    setTown(''); setKm(''); setPallets(''); setWeight(''); setPrice(''); setUnloadTown('');
   };
 
   const handleEndTrip = (e: React.FormEvent) => {
@@ -54,20 +71,48 @@ export default function Trips() {
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
           <h2 className="text-xl font-bold mb-4 flex items-center"><Play className="mr-2 text-green-500" /> Iniciar Nueva Ruta</h2>
           <form onSubmit={handleStartTrip} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm text-gray-600 mb-1">País</label>
-                <input value={country} onChange={e => setCountry(e.target.value)} className="w-full p-2 border rounded-lg" placeholder="Ej: ES, FR" />
+            <div className="border-b pb-4 mb-4">
+              <h3 className="font-semibold text-gray-700 mb-3">Datos de Origen</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm text-gray-600 mb-1">País Origen</label>
+                  <input value={country} onChange={e => setCountry(e.target.value)} className="w-full p-2 border rounded-lg" placeholder="Ej: ES, FR" />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-600 mb-1">Pueblo Origen</label>
+                  <input value={town} onChange={e => setTown(e.target.value)} className="w-full p-2 border rounded-lg" required />
+                </div>
               </div>
-              <div>
-                <label className="block text-sm text-gray-600 mb-1">Pueblo/Ciudad</label>
-                <input value={town} onChange={e => setTown(e.target.value)} className="w-full p-2 border rounded-lg" required />
+              <div className="mt-3">
+                <label className="block text-sm text-gray-600 mb-1">KM Iniciales</label>
+                <input type="number" value={km} onChange={e => setKm(e.target.value)} className="w-full p-2 border rounded-lg" required />
               </div>
             </div>
-            <div>
-              <label className="block text-sm text-gray-600 mb-1">KM Iniciales</label>
-              <input type="number" value={km} onChange={e => setKm(e.target.value)} className="w-full p-2 border rounded-lg" required />
+
+            <div className="border-b pb-4 mb-4">
+              <h3 className="font-semibold text-gray-700 mb-3">Datos de Carga</h3>
+              <div className="grid grid-cols-2 gap-4 mb-3">
+                <div>
+                  <label className="block text-sm text-gray-600 mb-1">Palets</label>
+                  <input type="number" value={pallets} onChange={e => setPallets(e.target.value)} className="w-full p-2 border rounded-lg" placeholder="Ej: 33" />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-600 mb-1">Peso (kg)</label>
+                  <input type="number" value={weight} onChange={e => setWeight(e.target.value)} className="w-full p-2 border rounded-lg" placeholder="Ej: 24000" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm text-gray-600 mb-1">Destino (Pueblo)</label>
+                  <input value={unloadTown} onChange={e => setUnloadTown(e.target.value)} className="w-full p-2 border rounded-lg" placeholder="Pueblo destino" />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-600 mb-1">Precio Pactado (€)</label>
+                  <input type="number" step="0.01" value={price} onChange={e => setPrice(e.target.value)} className="w-full p-2 border rounded-lg text-green-700 font-bold" placeholder="Ej: 800" />
+                </div>
+              </div>
             </div>
+
             <button type="submit" className="w-full bg-blue-600 text-white p-3 rounded-lg font-medium hover:bg-blue-700">Comenzar Ruta</button>
           </form>
         </div>
@@ -87,7 +132,16 @@ export default function Trips() {
               </div>
             </div>
 
-            <div className="mt-6 border-t pt-4">
+            {currentTrip.load && (
+              <div className="bg-gray-50 p-3 rounded-lg mb-4 text-sm grid grid-cols-2 gap-2">
+                <div><span className="text-gray-500">Destino:</span> <strong>{currentTrip.load.unloadLocation?.town || '-'}</strong></div>
+                <div><span className="text-gray-500">Precio:</span> <strong className="text-green-600">{currentTrip.load.price ? `${currentTrip.load.price}€` : '-'}</strong></div>
+                <div><span className="text-gray-500">Palets:</span> <strong>{currentTrip.load.pallets || '-'}</strong></div>
+                <div><span className="text-gray-500">Peso:</span> <strong>{currentTrip.load.weight ? `${currentTrip.load.weight}kg` : '-'}</strong></div>
+              </div>
+            )}
+
+            <div className="mt-4 border-t pt-4">
               <h3 className="font-semibold mb-3 flex items-center"><Clock size={18} className="mr-2"/> Registrar Actividad</h3>
               <form onSubmit={handleAddActivity} className="space-y-3">
                 <select value={actType} onChange={e => setActType(e.target.value as ActivityType)} className="w-full p-2 border rounded-lg bg-gray-50">
@@ -146,6 +200,7 @@ export default function Trips() {
                   <p className="text-xs text-gray-500 mt-1">
                     {new Date(trip.startDate).toLocaleDateString()} | Recorrido: {(trip.endKm || 0) - trip.startKm} km
                   </p>
+                  {trip.load?.price && <p className="text-xs font-bold text-green-600 mt-1">Precio: {trip.load.price}€</p>}
                 </div>
                 <button onClick={() => deleteTrip(trip.id)} className="text-red-400 hover:text-red-600 p-2">
                   <Trash2 size={18} />
