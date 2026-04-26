@@ -53,6 +53,15 @@ export interface Profile {
   truckPlate: string;
   trailerPlate: string;
   currency: string;
+  role: 'chofer' | 'jefe';
+}
+
+export interface Document {
+  id: string;
+  date: string;
+  type: 'albaran' | 'factura' | 'otro';
+  notes: string;
+  imageData: string; // Base64 compressed image
 }
 
 export interface PointOfInterest {
@@ -70,6 +79,7 @@ interface TruckerData {
   fuelLogs: FuelLog[];
   expenses: Expense[];
   pois: PointOfInterest[];
+  documents: Document[];
   currentTripId: string | null;
 }
 
@@ -87,6 +97,8 @@ interface TruckerContextType {
   deleteExpense: (id: string) => void;
   addPOI: (poi: Omit<PointOfInterest, 'id'>) => void;
   deletePOI: (id: string) => void;
+  addDocument: (doc: Omit<Document, 'id'>) => void;
+  deleteDocument: (id: string) => void;
 }
 
 const defaultData: TruckerData = {
@@ -94,11 +106,13 @@ const defaultData: TruckerData = {
     truckPlate: '',
     trailerPlate: '',
     currency: '€',
+    role: 'chofer',
   },
   trips: [],
   fuelLogs: [],
   expenses: [],
   pois: [],
+  documents: [],
   currentTripId: null,
 };
 
@@ -235,6 +249,20 @@ export const TruckerProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }));
   };
 
+  const addDocument = (doc: Omit<Document, 'id'>) => {
+    setData(prev => ({
+      ...prev,
+      documents: [{ ...doc, id: generateId() }, ...(prev.documents || [])].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    }));
+  };
+
+  const deleteDocument = (id: string) => {
+    setData(prev => ({
+      ...prev,
+      documents: (prev.documents || []).filter(d => d.id !== id)
+    }));
+  };
+
   return (
     <TruckerContext.Provider value={{
       data,
@@ -249,7 +277,9 @@ export const TruckerProvider: React.FC<{ children: React.ReactNode }> = ({ child
       addExpense,
       deleteExpense,
       addPOI,
-      deletePOI
+      deletePOI,
+      addDocument,
+      deleteDocument
     }}>
       {children}
     </TruckerContext.Provider>

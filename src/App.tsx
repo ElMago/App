@@ -7,6 +7,7 @@ import MapView from './pages/MapView';
 import Profile from './pages/Profile';
 import Expenses from './pages/Expenses';
 import Finances from './pages/Finances';
+import Documents from './pages/Documents';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/expenses" element={<Expenses />} />
           <Route path="/finances" element={<Finances />} />
+          <Route path="/documents" element={<Documents />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Layout>

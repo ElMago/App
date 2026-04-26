@@ -7,10 +7,11 @@ export default function Profile() {
   const [truckPlate, setTruckPlate] = useState(data.profile?.truckPlate || '');
   const [trailerPlate, setTrailerPlate] = useState(data.profile?.trailerPlate || '');
   const [currency, setCurrency] = useState(data.profile?.currency || '€');
+  const [role, setRole] = useState<'chofer' | 'jefe'>(data.profile?.role || 'chofer');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    updateProfile({ truckPlate, trailerPlate, currency });
+    updateProfile({ truckPlate, trailerPlate, currency, role });
     alert('Perfil guardado exitosamente.');
   };
 
@@ -23,6 +24,31 @@ export default function Profile() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Mi Rol
+            </label>
+            <div className="flex bg-gray-100 p-1 rounded-lg">
+              <button
+                type="button"
+                onClick={() => setRole('chofer')}
+                className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${role === 'chofer' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+              >
+                Chófer
+              </button>
+              <button
+                type="button"
+                onClick={() => setRole('jefe')}
+                className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${role === 'jefe' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+              >
+                Jefe / Autónomo
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 mt-2">
+              {role === 'jefe' ? 'El Jefe tiene acceso a la pestaña de Finanzas y Gastos Globales.' : 'El Chófer tiene una vista simplificada enfocada en la ruta y subida de documentos.'}
+            </p>
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Matrícula del Camión
