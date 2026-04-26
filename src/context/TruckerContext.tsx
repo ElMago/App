@@ -73,7 +73,7 @@ export const TruckerProvider: React.FC<{ children: React.ReactNode }> = ({ child
     localStorage.setItem('trucker_data', JSON.stringify(data));
   }, [data]);
 
-  const generateId = () => Math.random().toString(36).substr(2, 9);
+  const generateId = () => crypto.randomUUID();
 
   const startTrip = (location: LocationInfo, startKm: number) => {
     const newTrip: Trip = {
