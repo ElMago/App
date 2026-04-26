@@ -4,6 +4,9 @@ import Dashboard from './pages/Dashboard';
 import Trips from './pages/Trips';
 import Fuel from './pages/Fuel';
 import MapView from './pages/MapView';
+import Profile from './pages/Profile';
+import Expenses from './pages/Expenses';
+import Finances from './pages/Finances';
 
 function App() {
   return (
@@ -14,6 +17,9 @@ function App() {
           <Route path="/trips" element={<Trips />} />
           <Route path="/fuel" element={<Fuel />} />
           <Route path="/map" element={<MapView />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/expenses" element={<Expenses />} />
+          <Route path="/finances" element={<Finances />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Layout>
