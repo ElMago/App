@@ -135,7 +135,7 @@ export const EventDetails: React.FC = () => {
               <div key={car.id} className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden hover:border-gray-700 transition-colors group">
                 <div className="h-64 bg-gray-800 flex items-center justify-center relative">
                   {car.photoUrl ? (
-                    <img src={`http://localhost:3001${car.photoUrl}`} alt={car.makeModel} className="w-full h-full object-cover" />
+                    <img src={car.photoUrl} alt={car.makeModel} className="w-full h-full object-cover" />
                   ) : (
                     <ImageIcon size={48} className="text-gray-600" />
                   )}
