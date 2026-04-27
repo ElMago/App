@@ -17,7 +17,11 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-const JWT_SECRET = process.env.JWT_SECRET || 'de-la-ribera-racing-secret-key-123';
+if (!process.env.JWT_SECRET) {
+  console.error("WARNING: JWT_SECRET environment variable is not set. Refusing to start server.");
+  process.exit(1);
+}
+const JWT_SECRET = process.env.JWT_SECRET;
 
 app.use(cors());
 app.use(express.json());
